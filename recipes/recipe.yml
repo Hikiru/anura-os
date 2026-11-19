@@ -2,12 +2,10 @@
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
 # image will be published to ghcr.io/<user>/<name>
 name: anura-os
-# description will be included in the image's metadata
-description: This is my personal OS image.
+description: This is my personal BlueBuild image based on SecureBlue.
 
-# the base image to build on top of (FROM) and the version tag to use
-base-image: ghcr.io/ublue-os/silverblue-main
-image-version: latest # You can pin to a specific version of Fedora as well
+base-image: ghcr.io/secureblue/securecore-main-hardened
+image-version: latest
 
 # module configuration, executed in order
 # you can include multiple instances of the same module
@@ -19,27 +17,62 @@ modules:
 
   - type: dnf
     repos:
+      files:
+        - https://github.com/terrapkg/subatomic-repos/raw/main/terra.repo
       copr:
-        - atim/starship
+        - duxlabs/dms
     install:
       packages:
-        - micro
-        - starship
-    remove:
-      packages:
-        # example: removing firefox (in favor of the flatpak)
-        # "firefox" is the main package, "firefox-langpacks" is a dependency
-        - firefox
-        - firefox-langpacks # also remove firefox dependency (not required for all packages, this is a special case)
+        - umbriel-nightly
+        - dms
+        - dux-greeter
+        - dux-files
+        - dux-search
+        - dux-edit
+        - dux-calendar
+        - dux-gop
+        - matugen
+        - ghostty
+        - tailscale
+        - papirus-icon-theme
 
   - type: default-flatpaks
     configurations:
-      - notify: true # Send notification after install/uninstall is finished (true/false)
-        scope: system
-        # If no repo information is specified, Flathub will be used by default
-        install: # system flatpaks we want all users to have and not remove
-          - org.mozilla.firefox
+      - notify: true
+        install:
+          # Utilities
+          - com.obsproject.Studio
+          - com.obsproject.Studio.Plugin.OBSVkCapture
           - org.gnome.Loupe
-      - scope: user # Also add Flathub user repo, but no user packages
+          - org.upscayl.Upscayl
+          - io.github.celluloid_player.Celluloid
+          - org.gnome.gitlab.YaLTeR.VideoTrimmer
+          - io.github.wartybix.Constrict
+          - com.jeffser.Nocturne
+          - org.musicbrainz.Picard
+          - com.github.wwmm.easyeffects
+          - org.localsend.localsend_app
+          - org.fedoraproject.MediaWriter
+          - it.mijorus.gearlever
 
+          # Creative + dev
+          - dev.zed.Zed
+          - io.github.MakovWait.Godots
+          - md.obsidian.Obsidian
+          - net.pixieditor.PixiEditor
+          - org.gimp.GIMP
+          - org.kde.krita
+
+          # Gaming
+          - com.valvesoftware.Steam
+          - io.github.Foldex.AdwSteamGtk
+          - com.steamgriddb.SGDBoop
+          - com.vysp3r.ProtonPlus
+          - com.heroicgameslauncher.hgl
+          - org.prismlauncher.PrismLauncher
+          - io.github.wivrn.wivrn
+
+          # Misc
+          - com.discordapp.Discord
+          - dev.vencord.Vesktop
   - type: signing # this sets up the proper policy & signing files for signed images to work fully
