@@ -58,7 +58,7 @@ modules:
   - type: systemd
     system:
       enabled: [greetd.service]
-      disabled: [sddm.service]
+      # disabled: [sddm.service]
 
   - type: default-flatpaks
     configurations:
