@@ -4,7 +4,7 @@
 name: anura-os
 description: This is my personal BlueBuild image based on secureblue.
 
-base-image: ghcr.io/secureblue/securecore-main-hardened
+base-image: ghcr.io/secureblue/sericea-main-hardened
 image-version: latest
 
 # module configuration, executed in order
@@ -37,6 +37,28 @@ modules:
         - ghostty
         - tailscale
         - papirus-icon-theme
+    remove:
+      packages:
+        - sway
+        - sway-config-fedora
+        - swaybg
+        - swayidle
+        - swaylock
+        - kanshi
+        - grim
+        - slurp
+        - grimshot
+        - waybar
+        - foot
+        - fuzzel
+        - mako
+        - sddm
+        - sddm-wayland-sway
+        - xdg-desktop-portal-wlr
+  - type: systemd
+    system:
+      enabled: [greetd.service]
+      disabled: [sddm.service]
 
   - type: default-flatpaks
     configurations:
