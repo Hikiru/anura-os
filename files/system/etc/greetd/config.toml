@@ -3,4 +3,4 @@ vt = 1
 
 [default_session]
 user = "greeter"
-command = "dms-greeter --command umbriel"
+command = "dms-greeter --command sway"

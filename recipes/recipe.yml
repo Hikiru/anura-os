@@ -39,7 +39,7 @@ modules:
         - papirus-icon-theme
     remove:
       packages:
-        - sway
+        # - sway
         - sway-config-fedora
         - swaybg
         - swayidle
