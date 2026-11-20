@@ -40,7 +40,7 @@ modules:
     remove:
       packages:
         # - sway
-        - sway-config-fedora
+        # - sway-config-fedora
         - swaybg
         - swayidle
         - swaylock
@@ -50,8 +50,6 @@ modules:
         - grimshot
         - waybar
         - foot
-        - fuzzel
-        - mako
         - sddm
         - sddm-wayland-sway
         - xdg-desktop-portal-wlr
