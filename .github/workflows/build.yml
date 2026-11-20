@@ -58,9 +58,14 @@ jobs:
         shell: bash
         env:
           DIGESTFILE: ${{ steps.digestfile.outputs.digestfile }}
-          IMAGE_REF: ${{ steps.image_data.outputs.IMAGE_REF }}
+          IMAGE_REF_PREFIX: "ghcr.io/${{ github.repository }}:"
         run: |
+          set -euo pipefail
+          IMAGE_REF=$(jq -er --arg prefix "${IMAGE_REF_PREFIX,,}" \
+            'keys | map(select(startswith($prefix))) | if length == 1 then .[0] else error("expected exactly one image digest") end' \
+            "${DIGESTFILE}")
           IMAGE_DIGEST=$(jq -er --arg ref "${IMAGE_REF}" '.[$ref]' "${DIGESTFILE}")
+          echo "IMAGE_REF=${IMAGE_REF}" >> "${GITHUB_OUTPUT}"
           echo "IMAGE_DIGEST=${IMAGE_DIGEST}" >> "${GITHUB_OUTPUT}"
 
   # Generate SLSA v1 level 3 build provenance attestation
