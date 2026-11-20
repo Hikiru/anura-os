@@ -10,14 +10,19 @@ on:
 
   pull_request:
   workflow_dispatch: # allow manually triggering builds
+
 concurrency:
   # only run one build at a time
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: true
+
 jobs:
   bluebuild:
     name: Build Custom Image
     runs-on: ubuntu-latest
+    outputs:
+      IMAGE_REF: ${{ steps.image_manifest_metadata.outputs.IMAGE_REF }}
+      IMAGE_DIGEST: ${{ steps.image_manifest_metadata.outputs.IMAGE_DIGEST }}
     permissions:
       contents: read
       packages: write
@@ -29,6 +34,12 @@ jobs:
           # !! Add your recipes here
           - recipe.yml
     steps:
+      - name: Create digestfile
+        id: digestfile
+        shell: bash
+        run: |
+          echo "digestfile=$(mktemp)" >>"${GITHUB_OUTPUT}"
+
       # the build is fully handled by the reusable github action
       - name: Build Custom Image
         uses: blue-build/github-action@v1.14
@@ -40,3 +51,41 @@ jobs:
 
           # enabled by default, disable if your image is small and you want faster builds
           maximize_build_space: true
+          digestfile: ${{ steps.digestfile.outputs.digestfile }}
+
+      - name: Output image digest
+        id: image_manifest_metadata
+        shell: bash
+        env:
+          DIGESTFILE: ${{ steps.digestfile.outputs.digestfile }}
+          IMAGE_REF: ${{ steps.image_data.outputs.IMAGE_REF }}
+        run: |
+          IMAGE_DIGEST=$(jq -er --arg ref "${IMAGE_REF}" '.[$ref]' "${DIGESTFILE}")
+          echo "IMAGE_DIGEST=${IMAGE_DIGEST}" >> "${GITHUB_OUTPUT}"
+
+  # Generate SLSA v1 level 3 build provenance attestation
+  provenance:
+    needs: [bluebuild]
+    permissions:
+      actions: read # to detect the Github Actions environment
+      contents: read
+      id-token: write # to create OIDC tokens for signing
+    uses: slsa-framework/actions/.github/workflows/attest_actions.yml@v0.2.0 # zizmor: ignore[unpinned-uses]
+    with:
+      build-from-source: false
+      # renovate: datasource=github-releases depName=slsa-framework/attester
+      version: v0.1.1
+      watch-jobs: bluebuild
+      collect-artifacts: false
+      subjects: ${{ needs.bluebuild.outputs.IMAGE_DIGEST }}
+      artifact-name: slsa-provenance-anura-os
+
+  push-attestation:
+    needs: [bluebuild, provenance]
+    permissions:
+      packages: write # to push attestation to GHCR
+    uses: $/.github/workflows/push-provenance.yml
+    with:
+      artifact-name: slsa-provenance-anura-os
+      image-ref: ${{ needs.bluebuild.outputs.IMAGE_REF }}
+      digest: ${{ needs.bluebuild.outputs.IMAGE_DIGEST }}

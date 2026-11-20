@@ -26,6 +26,7 @@ modules:
     install:
       packages:
         - umbriel-nightly
+        - niri
         - dms
         - dux-greeter
         - dux-files
@@ -39,8 +40,8 @@ modules:
         - papirus-icon-theme
     remove:
       packages:
-        # - sway
-        # - sway-config-fedora
+        - sway
+        - sway-config-fedora
         - swaybg
         - swayidle
         - swaylock
