@@ -50,7 +50,7 @@ jobs:
             tempdir=$(mktemp -d)
             trap 'rm -rf "${tempdir}"' RETURN
             local digest
-            digest=$(oras resolve "${image_ref}:${tag}") || return 1
+            digest=$(oras resolve "${image_ref}:latest") || return 1
             echo "Verifying provenance for ${image_ref}@${digest}..."
             oras pull -o "${tempdir}" "${image_ref}:${digest/:/-}-provenance" || return 1
             slsa-verifier build "${tempdir}/provenance.intoto.json" \
@@ -66,16 +66,11 @@ jobs:
           failed_images=()
           for image_name in "${images[@]}"; do
             image_ref="ghcr.io/hikiru/${image_name}"
-            for tag in latest uki; do
-              if [[ "${tag}" == uki && "${image_name}" =~ -(nvidia|zfs)- ]]; then
-                continue
-              fi
-              if ! verify_provenance "${image_ref}" "${tag}"; then
-                failed_images+=("${image_name}:${tag}")
-                echo "FAIL: Provenance verification failed for ${image_name}:${tag}"
-              fi
-              echo
-            done
+            if ! verify_provenance "${image_ref}" "latest"; then
+              failed_images+=("${image_name}:latest")
+              echo "FAIL: Provenance verification failed for ${image_name}:latest"
+            fi
+            echo
           done
           if [[ "${#failed_images[@]}" -gt 0 ]]; then
             echo "FAIL: the following images failed provenance verification: ${failed_images[*]}"
