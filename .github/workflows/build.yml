@@ -240,7 +240,7 @@ jobs:
             --subject "${DIGEST}" \
             --param "expected_source:github.com/${GITHUB_REPOSITORY}" \
             --param 'expected_branch:main' \
-            --param "trusted_builders:[https://github.com/${GITHUB_REPOSITORY}/.github/workflows/build-all.yml@refs/heads/main]"
+            --param "trusted_builders:[https://github.com/${GITHUB_REPOSITORY}/.github/workflows/build.yml@refs/heads/main]"
           # remove slsa-verifier so that it can be successfully reinstalled later by bluebuild
           rm -rf ~/.slsa/ "${tempdir}"
 
