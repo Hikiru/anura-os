@@ -22,7 +22,7 @@ on:
 # Cancels running workflows if a new workflow run for
 # the same workflow is started
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ inputs.recipe }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-recipe.yml
   cancel-in-progress: true
 
 jobs:
@@ -200,7 +200,7 @@ jobs:
         env:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           PR_EVENT_NUMBER: ${{ github.event.number }}
-          RECIPE: ${{ inputs.recipe }}
+          RECIPE: recipe.yml
         run: |
           IMAGE_NAME=$(yq -r '."name"' "./recipes/${RECIPE}")
           echo "IMAGE_NAME=${IMAGE_NAME}" >> "${GITHUB_OUTPUT}"
@@ -275,13 +275,13 @@ jobs:
         with:
           # renovate: datasource=github-releases depName=blue-build/cli
           cli_version: v0.9.41
-          recipe: ${{ inputs.recipe }}
+          recipe: recipe.yml
           cosign_private_key: ${{ secrets.SIGNING_SECRET }}
           registry_token: ${{ github.token }}
           pr_event_number: ${{ github.event.number }}
           maximize_build_space: true
           squash: true
-          chunkah: ${{ inputs.rechunk }}
+          chunkah: true
           build_opts: --chunkah-version v0.7.1@sha256:71e593421c5de7dcc7c8c5c50e98d3bac572055a76f399f61a491d123c20a523
           max_layers: 128
           skip_checkout: true
