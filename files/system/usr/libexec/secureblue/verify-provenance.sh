@@ -25,7 +25,7 @@ fi
 
 case "${image_ref}" in
 ghcr.io/hikiru/*)
-    expected_source='https://github.com/hikiru/anura-os'
+    expected_source='https://github.com/Hikiru/anura-os'
     ;;
 *)
     printf 'WARNING: Unknown image reference "%s"; unable to check provenance.\n' "${image_ref}"

@@ -50,7 +50,7 @@ jobs:
             tempdir=$(mktemp -d)
             trap 'rm -rf "${tempdir}"' RETURN
             local digest
-            digest=$(oras resolve "${image_ref}:latest") || return 1
+            digest=$(oras resolve "${image_ref}:${tag}") || return 1
             echo "Verifying provenance for ${image_ref}@${digest}..."
             oras pull -o "${tempdir}" "${image_ref}:${digest/:/-}-provenance" || return 1
             slsa-verifier build "${tempdir}/provenance.intoto.json" \
