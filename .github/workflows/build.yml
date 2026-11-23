@@ -4,31 +4,23 @@
 #
 # Edited for AnuraOS
 
-name: build-anura-os
+name: build
 permissions: {}
 on:
-  workflow_call:
-    inputs:
-      recipe:
-        type: string
-        required: true
-      rechunk:
-        type: boolean
-        required: false
-        default: false
-    secrets:
-      SIGNING_SECRET:
-        required: true
-      KERNEL_PRIVKEY:
-        required: true
-    outputs:
-      IMAGE_DIGEST:
-        value: ${{ jobs.bluebuild.outputs.IMAGE_DIGEST }}
-      IMAGE_NAME:
-        value: ${{ jobs.bluebuild.outputs.IMAGE_NAME }}
-      IMAGE_TAG:
-        value: ${{ jobs.bluebuild.outputs.IMAGE_TAG }}
+  schedule:
+    - cron: "40 5 * * *" # build at 5:40 UTC every day
 
+  push:
+    branches-ignore: # don't rebuild for dependabot
+      - "dependabot/**"
+      - "create-pull-request/**"
+    paths-ignore: # don't rebuild if only documentation has changed
+      - "**.md"
+  # checkov:skip=CKV_GHA_7
+  workflow_dispatch: # allow manually triggering builds
+
+# Cancels running workflows if a new workflow run for
+# the same workflow is started
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ inputs.recipe }}
   cancel-in-progress: true
