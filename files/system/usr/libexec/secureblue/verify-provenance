@@ -3,8 +3,6 @@
 # SPDX-FileCopyrightText: Copyright 2025-2026 The Secureblue Authors
 #
 # SPDX-License-Identifier: Apache-2.0
-#
-# Edited for AnuraOS image
 
 set -euo pipefail
 
@@ -45,7 +43,7 @@ printf 'Verifying SLSA v1 Level 3 build provenance for:\n  %s\n' "${image_ref}"
 image_tag="${image_ref##*:}"
 case "${image_tag}" in
 latest | latest-uki | uki)
-    branch='live'
+    branch='main'
     ;;
 br-*)
     branch="${image_tag%-uki}"
@@ -69,4 +67,4 @@ slsa-verifier build "${tempdir}/provenance.intoto.json" \
     --subject "${digest}" \
     --param "expected_source:${expected_source}" \
     --param "expected_branch:${branch}" \
-    --param "trusted_builders:[${expected_source}/.github/workflows/build-all.yml@refs/heads/${branch}]"
+    --param "trusted_builders:[${expected_source}/.github/workflows/build.yml@refs/heads/${branch}]"
